@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:ui';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:bizzyn_books/core/api_client.dart';
 import 'package:bizzyn_books/screens/home.dart';
@@ -9,6 +11,20 @@ class LoginScreen extends StatefulWidget {
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class User {
+  final int accessToken;
+
+  const User({
+    required this.accessToken,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      accessToken: json['accessToken'],
+    );
+  }
 }
 
 class _LoginScreenState extends State<LoginScreen> {
@@ -25,22 +41,23 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.green.shade300,
       ));
 
-      dynamic res = await _apiClient.login(
-        emailController.text,
-        passwordController.text,
-      );
+      try {
+        dynamic res = await _apiClient.log(
+          emailController.text,
+          passwordController.text,
+        );
 
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        log('data: $res');
 
-      if (res['ErrorCode'] == null) {
-        String accessToken = res['access_token'];
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        String accessToken = jsonDecode(res['accessToken']);
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => HomeScreen(accesstoken: accessToken)));
-      } else {
+                builder: (context) => HomeScreen(accesstoken: "accessToken")));
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: ${res['Message']}'),
+          content: Text('Error: ${e}'),
           backgroundColor: Colors.red.shade300,
         ));
       }

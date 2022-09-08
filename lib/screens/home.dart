@@ -1,3 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:bizzyn_books/core/api_client.dart';
 import 'package:bizzyn_books/screens/login_screen.dart';
@@ -16,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<Map<String, dynamic>> getUserData() async {
     dynamic userRes;
     userRes = await _apiClient.getUserProfileData(widget.accesstoken);
-    return userRes;
+    return jsonDecode(userRes);
   }
 
   Future<void> logout() async {

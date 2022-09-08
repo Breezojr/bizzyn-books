@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:bizzyn_books/core/api_client.dart';
@@ -16,6 +18,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmController =
+      TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+
   final ApiClient _apiClient = ApiClient();
   bool _showPassword = false;
 
@@ -27,31 +34,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ));
 
       Map<String, dynamic> userData = {
-        "Email": [
-          {
-            "Type": "Primary",
-            "Value": emailController.text,
-          }
-        ],
-        "Password": passwordController.text,
-        "About": 'I am a new user :smile:',
-        "FirstName": "Test",
-        "LastName": "Account",
-        "FullName": "Test Account",
-        "BirthDate": "10-12-1985",
-        "Gender": "M",
+        "email": emailController.text,
+        "password": passwordController.text,
+        "confirmPassword": passwordController.text,
+        "firstName": firstNameController.text,
+        "lastName": lastNameController.text,
       };
 
-      dynamic res = await _apiClient.registerUser(userData);
-
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-      if (res['ErrorCode'] == null) {
+      try {
+        await _apiClient.reg(userData);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const LoginScreen()));
-      } else {
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: ${res['Message']}'),
+          content: Text('Error: ${e}'),
           backgroundColor: Colors.red.shade300,
         ));
       }
@@ -95,8 +92,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     SizedBox(height: size.height * 0.03),
                     TextFormField(
-                      validator: (value) =>
-                          Validator.validateEmail(value ?? ""),
+                      controller: firstNameController,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        hintText: "First Name",
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    TextFormField(
+                      controller: lastNameController,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        hintText: "Last Name",
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
@@ -116,6 +135,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       keyboardType: TextInputType.visiblePassword,
                       decoration: InputDecoration(
                         hintText: "Password",
+                        suffixIcon: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showPassword = !_showPassword;
+                            });
+                          },
+                          child: Icon(
+                            _showPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: size.height * 0.03),
+                    TextFormField(
+                      obscureText: _showPassword,
+                      validator: (value) =>
+                          Validator.validatePassword(value ?? ""),
+                      controller: passwordConfirmController,
+                      keyboardType: TextInputType.visiblePassword,
+                      decoration: InputDecoration(
+                        hintText: "Confirm Password",
                         suffixIcon: GestureDetector(
                           onTap: () {
                             setState(() {
