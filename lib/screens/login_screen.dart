@@ -13,20 +13,6 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class User {
-  final int accessToken;
-
-  const User({
-    required this.accessToken,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      accessToken: json['accessToken'],
-    );
-  }
-}
-
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
@@ -47,10 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
           passwordController.text,
         );
 
-        log('data: $res');
-
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        String accessToken = jsonDecode(res['accessToken']);
+        String accessToken = "res['accessToken']";
         Navigator.push(
             context,
             MaterialPageRoute(

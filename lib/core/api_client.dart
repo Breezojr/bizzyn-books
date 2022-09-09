@@ -14,6 +14,29 @@ class ApiClient {
         body: jsonEncode(data));
   }
 
+  Future<User> logi(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:3000/auth/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Failed to Login.');
+    }
+  }
+
   Future<http.Response> log(String email, String password) async {
     return http.post(Uri.parse('http://10.0.2.2:3000/auth/login'),
         headers: <String, String>{
@@ -94,5 +117,17 @@ class ApiClient {
     } on DioError catch (e) {
       return e.response!.data;
     }
+  }
+}
+
+class User {
+  final String accessToken;
+
+  const User({required this.accessToken});
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      accessToken: json['accessToken'],
+    );
   }
 }
